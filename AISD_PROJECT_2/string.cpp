@@ -20,18 +20,18 @@ bool String::isEmpty() {
 		return true;
 	return false;
 }
-void addMemory(char*& t, int &size, int newSize) {
-	char* buf = Move<char*>(t);
-	t = new char[newSize];
+void String::addMemory(int newSize) {
+	char* buf = Move<char*>(val);
+	val = new char[newSize];
 
 	//przepisuje tablice
 	for (int i = 0; i < size && i < newSize; i++)
-		t[i] = buf[i];
-	t[newSize - 1] = '\0';
+		val[i] = buf[i];
+	val[newSize - 1] = '\0';
 
 	if (size == 0 && newSize > 0) {
 		size++;
-		t[0] = '\0';
+		val[0] = '\0';
 	}
 
 	if (buf != nullptr)
@@ -61,7 +61,7 @@ void String::getline() {
 			val[size++] = ch;
 		else {
 			bufs++;
-			addMemory(this->val, size, bufs * stringBuf);
+			addMemory(bufs * stringBuf);
 			val[size++] = ch;
 		}
 	}
@@ -227,12 +227,13 @@ const bool String::operator!=(const char* s) const {
 }
 String& String::operator+=(const char s) {
 	if (this->size + 1 > stringBuf * bufs)
-		addMemory(this->val, this->size, stringBuf * (++bufs));
+		addMemory(stringBuf * (++bufs));
 	this->size++;
 	val[size - 2] = s;
 	val[size - 1] = 0;
 	return *this;
 }
+
 String::~String() {
 	if (this != nullptr && val != nullptr)
 		delete[] val;

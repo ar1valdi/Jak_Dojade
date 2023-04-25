@@ -7,7 +7,9 @@ private:
 	int size, bufs;
 	static bool EOFdetected;
 	void cleanVal();
+	void addMemory(int newSize);
 	friend String operator+(const char c, const String& s);
+	friend std::istream& operator>>(std::istream& is, String& s);
 public:
 	static bool getEOFdetection();
 	String();

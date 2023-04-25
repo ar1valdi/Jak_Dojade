@@ -53,9 +53,14 @@ bool isFirstOrLastLetterOfCity(int x, int y, int w, char** field) {
 
 	return false;
 }
-String& getCityString(int x, int y, int w, char** field) {
+bool isInMap(int x, int y, int w, int h) {
+	if (x >= 0 && x < w && y >= 0 && y < h)
+		return true;
+	return false;
+}
+String getCityString(int x, int y, int w, char** field) {
 	
-	String* name = new String;
+	String name;
 
 	if (x + 1 == w || (x + 1 < w && !isCityChar(field[x + 1][y]))) {
 
@@ -67,61 +72,30 @@ String& getCityString(int x, int y, int w, char** field) {
 	}
 
 	while (isdigit(field[x][y]) || isalpha(field[x][y])) {
-		*name += field[x][y];
+		name += field[x][y];
 		x++;
 	}
 
-	return *name;
+	return name;
 }
-String& getCityName(int x, int y, int w, int h, char ** field) {
-	String *name = new String;
+String getCityName(int x, int y, int w, int h, char ** field) {
+	String name;
 
-	if (x - 1 >= 0) {
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			if (i == 0 && j == 0) continue;
+	
+			int tmpX = x + i;
+			int tmpY = y + j;
+	
+			if (!isInMap(tmpX, tmpY, w, h)) continue;
+			if (!isFirstOrLastLetterOfCity(tmpX, tmpY, w, field)) continue;
 
-		if (y - 1 >= 0 && isFirstOrLastLetterOfCity(x - 1, y - 1, w, field)) {
-			*name = getCityString(x - 1, y - 1, w, field);
+			name = getCityString(tmpX, tmpY, w, field);
+			break;
 		}
-
-		else if (y + 1 >= 0 && isFirstOrLastLetterOfCity(x - 1, y + 1, w, field)) {
-			*name = getCityString(x - 1, y + 1, w, field);
-		}
-
-		else if (isFirstOrLastLetterOfCity(x - 1, y, w, field)) {
-			*name = getCityString(x - 1, y, w, field);
-		}
-
 	}
-
-	if (x + 1 < w && name->isEmpty()) {
-			
-		if (y - 1 >= 0 && isFirstOrLastLetterOfCity(x + 1, y - 1, w, field)) {
-			*name = getCityString(x + 1, y - 1, w, field);
-		}
-
-		else if (y + 1 >= 0 && isFirstOrLastLetterOfCity(x + 1, y + 1, w, field)) {
-			*name = getCityString(x + 1, y + 1, w, field);
-		}
-
-		else if (isFirstOrLastLetterOfCity(x + 1, y, w, field)) {
-			*name = getCityString(x + 1, y, w, field);
-		}
-
-	}
-
-	if (name->isEmpty() && y - 1 >= 0 && isFirstOrLastLetterOfCity(x, y - 1, w, field)) {
-		*name = getCityString(x, y - 1, w, field);
-	}
-
-	if (name->isEmpty() && y + 1 < h && name->isEmpty()) {
-		*name = getCityString(x, y + 1, w, field);
-	}
-
-	return *name;
-}
-bool isInMap(int x, int y, int w, int h) {
-	if (x >= 0 && x < w && y >= 0 && y < h)
-		return true;
-	return false;
+	return name;
 }
 void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, int h) {
 
@@ -147,19 +121,50 @@ void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, 
 		Pair<int, int> dirs[4] = { Pair<int,int>::create(-1,0), Pair<int,int>::create(1,0), Pair<int,int>::create(0, -1), Pair<int,int>::create(0, 1) };
 		toCheck.add(*(QueueNode::create(cityPos.first, cityPos.secound, 0)));
 
-		for (Pair<int, int> dir : dirs) {
-			int checkX = cities[i].getVal().first + dir.first;
-			int checkY = cities[i].getVal().secound + dir.secound;
+		while (!toCheck.isEmpty()) {
 
-			if (isInMap(checkX, checkY, w, h) && !visitedBoolMap[checkX][checkY]) {
+			QueueNode node = toCheck.pop();
 
+			for (Pair<int, int> dir : dirs) {
+				int checkX = node.pos.first + dir.first;
+				int checkY = node.pos.secound + dir.secound;
+
+				if (isInMap(checkX, checkY, w, h) && !visitedBoolMap[checkX][checkY]) {
+					if (field[checkX][checkY] == ROAD_ASCII)
+						toCheck.add(*(QueueNode::create(checkX, checkY, node.distance + 1)));
+					else if (field[checkX][checkY] == CITY_ASCII)
+						ht.addConnection(name, getCityName(checkX, checkY, w, h, field), node.distance);
+
+				}
 			}
+
+			visitedVector.add(node.pos.first, node.pos.secound);
+			visitedBoolMap[node.pos.first][node.pos.secound] = 1;
+
+			std::cout << "node: " << node.pos.first << " " << node.pos.secound << '\n';
 		}
+
+		//clear the visted map
+		for (int i = 0; i < visitedVector.getSize(); i++) {
+			visitedBoolMap[visitedVector[i].first][visitedVector[i].secound] = 0;
+		}
+		visitedVector.clear();
 
 		tmp = tmp->getNext();
 	}
 }
-
+void loadFlights(HashTable& ht) {
+	int num, dis;
+	String from, to;
+	std::cin >> num;
+	
+	for (int i = 0; i < num; i++) {
+		getchar(); // burn '\n' leftover
+		std::cin >> from >> to >> dis;
+		std::cout << "F: " << from << " T: " << to << " D: " << dis << '\n';
+		ht.addConnection(from, to, dis);
+	}
+}
 
 
 int main(){
@@ -180,15 +185,16 @@ int main(){
 	}
 
 	loadGraph(tab, field, citiesPos, w, h);
+	loadFlights(tab);
 
 	tab.print();
 
-	std::cout << '\n';
-	std::cout << '\n';
-	
-	for (int i = 0; i < h; i++) {
-		for(int j =0; j < w; j++)
-			std::cout << field[j][i];
-		std::cout << '\n';
-	}
+	//std::cout << '\n';
+	//std::cout << '\n';
+	//
+	//for (int i = 0; i < h; i++) {
+	//	for(int j =0; j < w; j++)
+	//		std::cout << field[j][i];
+	//	std::cout << '\n';
+	//}
 }

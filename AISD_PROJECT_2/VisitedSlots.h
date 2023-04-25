@@ -12,6 +12,7 @@ public:
 	VisitedSlots();
 	void add(int x, int y);
 	int getSize();
+	void clear();
 	~VisitedSlots();
 
 	Pair<int, int> operator[](int id);

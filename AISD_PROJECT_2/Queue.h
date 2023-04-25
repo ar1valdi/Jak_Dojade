@@ -8,8 +8,13 @@ class Queue
 public:
 	void add(const T& v);
 	T pop();
+	bool isEmpty();
 };
 
+template<typename T>
+bool Queue<T>::isEmpty() {
+	return val.isEmpty();
+}
 template <typename T>
 void Queue<T>::add(const T& v) {
 	val.add(v);

@@ -32,3 +32,9 @@ Pair<int, int> VisitedSlots::operator[](int id) {
 int VisitedSlots::getSize() {
 	return size;
 }
+void VisitedSlots::clear() {
+	delete slots;
+	slots = new Pair<int, int>[DEF_VEC_SIZE];
+	size = 0;
+	allocatedSize = DEF_VEC_SIZE;
+}
