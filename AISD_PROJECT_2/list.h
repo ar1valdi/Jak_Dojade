@@ -9,6 +9,7 @@ protected:
 	Node<T>* FirstNode;
 	Node<T>* LastNode;
 	int size;
+	friend class PriorityQueue;
 public:
 	List();
 	List(const List<T>& other);

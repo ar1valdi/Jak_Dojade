@@ -9,6 +9,7 @@
 #include "QueueNode.h"
 #include "VisitedSlots.h"
 #include <stdio.h>
+#include "PriorityQueue.h"
 
 char** enterField(int &w, int &h, List<Pair<int,int>>& cities) {
 	std::cin >> w >> h;
@@ -63,15 +64,14 @@ String getCityString(int x, int y, int w, char** field) {
 	String name;
 
 	if (x + 1 == w || (x + 1 < w && !isCityChar(field[x + 1][y]))) {
-
-		while ((isdigit(field[x][y]) || isalpha(field[x][y])) && x != -1) {
+		while (x >= 0 && (isdigit(field[x][y]) || isalpha(field[x][y]))) {
 			x--;
 		}
 
 		x += 1;
 	}
 
-	while (isdigit(field[x][y]) || isalpha(field[x][y])) {
+	while (x < w && (isdigit(field[x][y]) || isalpha(field[x][y]))) {
 		name += field[x][y];
 		x++;
 	}
@@ -97,13 +97,62 @@ String getCityName(int x, int y, int w, int h, char ** field) {
 	}
 	return name;
 }
+void printDebug(char** field, int w, int h, bool** bm) {
+	system("cls");
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) {
+			if (bm[j][i] == 0)
+				putchar(field[j][i]);
+			else
+				putchar('O');
+		}
+		putchar('\n');
+	}
+}
+void connectCities(Queue<QueueNode>& toCheck, int w, int h, bool** visitedBoolMap, char** field, HashTable& ht, String& name, VisitedSlots& visitedVector) {
+
+	Pair<int, int> dirs[4] = { Pair<int,int>::create(-1,0), Pair<int,int>::create(1,0), Pair<int,int>::create(0, -1), Pair<int,int>::create(0, 1) };
+
+	while (!toCheck.isEmpty()) {
+
+		QueueNode node = toCheck.pop();
+
+		for (Pair<int, int> dir : dirs) {
+			int checkX = node.pos.first + dir.first;
+			int checkY = node.pos.secound + dir.secound;
+
+			if (isInMap(checkX, checkY, w, h) && !visitedBoolMap[checkX][checkY]) {
+				if (field[checkX][checkY] == ROAD_ASCII) {
+					toCheck.add(*(QueueNode::create(checkX, checkY, node.distance + 1)));
+
+					visitedVector.add(checkX, checkY);
+					visitedBoolMap[checkX][checkY] = 1;
+				}
+				else if (field[checkX][checkY] == CITY_ASCII)
+					ht.addConnection(name, getCityName(checkX, checkY, w, h, field), node.distance);
+
+			}
+		}
+
+		//char buf;
+		//std::cin >> buf;
+		//printDebug(field, w, h, visitedBoolMap);
+		//std::cout << node.pos.first << " " << node.pos.secound << '\n';
+	}
+}
+void clearVisited(bool** visitedBoolMap, VisitedSlots& visitedVector) {
+	for (int i = 0; i < visitedVector.getSize(); i++) {
+		visitedBoolMap[visitedVector[i].first][visitedVector[i].secound] = 0;
+	}
+	visitedVector.clear();
+}
 void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, int h) {
 
 	Node<Pair<int, int>>* tmp = cities.getFirstNode();
 	String name;
-	VisitedSlots visitedVector;
 	Queue<QueueNode> toCheck;
 	bool** visitedBoolMap;
+	VisitedSlots visitedVector;
 
 	visitedBoolMap = new bool*[w];
 	for (int i = 0; i < w; i++) {
@@ -118,37 +167,13 @@ void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, 
 		name = getCityName(cityPos.first, cityPos.secound, w, h, field);
 		ht.addCity(name);
 
-		Pair<int, int> dirs[4] = { Pair<int,int>::create(-1,0), Pair<int,int>::create(1,0), Pair<int,int>::create(0, -1), Pair<int,int>::create(0, 1) };
 		toCheck.add(*(QueueNode::create(cityPos.first, cityPos.secound, 0)));
+		
+		visitedVector.add(cityPos.first, cityPos.secound);
+		visitedBoolMap[cityPos.first][cityPos.secound] = 1;
 
-		while (!toCheck.isEmpty()) {
-
-			QueueNode node = toCheck.pop();
-
-			for (Pair<int, int> dir : dirs) {
-				int checkX = node.pos.first + dir.first;
-				int checkY = node.pos.secound + dir.secound;
-
-				if (isInMap(checkX, checkY, w, h) && !visitedBoolMap[checkX][checkY]) {
-					if (field[checkX][checkY] == ROAD_ASCII)
-						toCheck.add(*(QueueNode::create(checkX, checkY, node.distance + 1)));
-					else if (field[checkX][checkY] == CITY_ASCII)
-						ht.addConnection(name, getCityName(checkX, checkY, w, h, field), node.distance);
-
-				}
-			}
-
-			visitedVector.add(node.pos.first, node.pos.secound);
-			visitedBoolMap[node.pos.first][node.pos.secound] = 1;
-
-			std::cout << "node: " << node.pos.first << " " << node.pos.secound << '\n';
-		}
-
-		//clear the visted map
-		for (int i = 0; i < visitedVector.getSize(); i++) {
-			visitedBoolMap[visitedVector[i].first][visitedVector[i].secound] = 0;
-		}
-		visitedVector.clear();
+		connectCities(toCheck, w, h, visitedBoolMap, field, ht, name, visitedVector);
+		clearVisited(visitedBoolMap, visitedVector);
 
 		tmp = tmp->getNext();
 	}
@@ -168,6 +193,29 @@ void loadFlights(HashTable& ht) {
 
 
 int main(){
+	//PriorityQueue pq;
+	//pq.add(Pair<int, int>::create(0, 4), 4);
+	//pq.add(Pair<int, int>::create(0, 3), 3);
+	//pq.add(Pair<int, int>::create(0, 2), 2);
+	//pq.add(Pair<int, int>::create(0, 1), 1);
+	//pq.add(Pair<int, int>::create(0, 6), 6);
+	//pq.add(Pair<int, int>::create(0, 5), 5);
+	//pq.add(Pair<int, int>::create(0, 4), 4);
+	//pq.add(Pair<int, int>::create(0, 3), 3);
+	//pq.add(Pair<int, int>::create(0, 2), 2);
+	//pq.add(Pair<int, int>::create(0, 1), 1);
+	//
+	//pq.add(Pair<int, int>::create(0, 6), 6);
+	//pq.add(Pair<int, int>::create(0, 5), 5);
+	//pq.add(Pair<int, int>::create(0, 4), 4);
+	//pq.add(Pair<int, int>::create(0, 3), 3);
+	//
+	//for (int i = 0; i < 14; i++) {
+	//	Pair<int, int> toRead = pq.pop();
+	//	std::cout << toRead.first << " " << toRead.secound << '\n';	
+	//}
+	//
+	//return 0;
 	HashTable tab(SIZE_FOR_20_CHARS);
 
 	char** field;
@@ -188,13 +236,4 @@ int main(){
 	loadFlights(tab);
 
 	tab.print();
-
-	//std::cout << '\n';
-	//std::cout << '\n';
-	//
-	//for (int i = 0; i < h; i++) {
-	//	for(int j =0; j < w; j++)
-	//		std::cout << field[j][i];
-	//	std::cout << '\n';
-	//}
 }

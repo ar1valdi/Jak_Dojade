@@ -145,6 +145,8 @@
     <ClInclude Include="node.h" />
     <ClInclude Include="operators.h" />
     <ClInclude Include="Pair.h" />
+    <ClInclude Include="PQNode.h" />
+    <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="QueueNode.h" />
     <ClInclude Include="string.h" />

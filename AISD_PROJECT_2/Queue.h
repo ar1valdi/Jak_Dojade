@@ -1,5 +1,7 @@
 #pragma once
 #include "List.h"
+#include "QueueNode.h"
+#include <iostream>
 
 template <typename T>
 class Queue
@@ -9,6 +11,7 @@ public:
 	void add(const T& v);
 	T pop();
 	bool isEmpty();
+	int getSize();
 };
 
 template<typename T>
@@ -24,4 +27,8 @@ T Queue<T>::pop() {
 	T toRet = Move(val[0].getVal());
 	val.del(0);
 	return toRet;
+}
+template <typename T>
+int Queue<T>::getSize() {
+	return val.getSize();
 }
