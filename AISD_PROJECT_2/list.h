@@ -22,6 +22,7 @@ public:
 	void clear();
 	int getSize() const;
 	Node<T>* getFirstNode() const;
+	Node<T>* getLastNode();
 	static List<T> emptyList();
 	~List();
 
@@ -64,6 +65,11 @@ bool List<T>::isEmpty() const {
 template <typename T>
 Node<T>* List<T>::getFirstNode() const {
 	return FirstNode;
+}
+
+template <typename T>
+Node<T>* List<T>::getLastNode() {
+	return LastNode;
 }
 template <typename T>
 void List<T>::add(const T& val) {
@@ -200,6 +206,11 @@ List<T>& List<T>::operator=(List<T>&& l) {
 }
 template <typename T>
 List<T>::~List() {
-	if (this != nullptr && FirstNode != nullptr)
-		delete FirstNode;
+	Node<T>* toDel = FirstNode;
+	Node<T>* next;
+	while(toDel != nullptr) {
+		next = toDel->getNext();
+		delete toDel;
+		toDel = next;
+	}
 }

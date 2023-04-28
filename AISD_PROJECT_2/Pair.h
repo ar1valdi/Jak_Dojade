@@ -9,7 +9,7 @@ public:
 	Pair(F f, S s);
 	F first;
 	S secound;
-	static Pair<F,S>& create(F f, S s);
+	static Pair<F,S> create(const F& f, const S& s);
 };
 
 template <typename F, typename S>
@@ -22,8 +22,11 @@ template <typename F, typename S>
 Pair<F, S>::Pair() {}	// stay undefined
 
 template <typename F, typename S>
-Pair<F, S>& Pair<F, S>::create(F f, S s) {
-	return *(new Pair<F, S>(f, s));
+Pair<F, S> Pair<F, S>::create(const F& f,const S& s) {
+	Pair<F, S> p;
+	p.first = f;
+	p.secound = s;
+	return p;
 }
 
 typedef Pair<String, int> siPair;

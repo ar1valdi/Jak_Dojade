@@ -6,13 +6,13 @@ HashTable::HashTable(int size) {
 	arr = new List<Pair<String, List < siPair >>>[size];
 }
 int HashTable::hash(const String& key) {
-	int sum = 0;
+	unsigned long long sum = 0;
 
 	for (int i = 0; i < key.getSize() - 1; i++) {	//-1 cuz of '\0', would bug with -47
-		sum += (int)key.getVal()[i] - 47;	//first valid character is 48, so reducing numbers reduces needed table space
+		sum += ((int)key.getVal()[i] - 47) * pow(FIRST_NUMBER_FOR_HASHING,i);	//first valid character is 48, so reducing numbers reduces needed table space
 	}
 
-	return sum;
+	return sum % HASH_TAB_SIZE;
 }
 void HashTable::addToId(int id, const String& key, const List< siPair >& val) {
 	arr[id].add(Pair<String, List< siPair >>::create( key, val ));

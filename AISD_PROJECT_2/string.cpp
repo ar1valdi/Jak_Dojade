@@ -160,6 +160,32 @@ String& String::operator=(const char* s) {
 	this->size = s_size;
 	return *this;
 }
+void String::getword() {
+	if (this->bufs != 1) {
+		this->cleanVal();
+		this->val = new char[stringBuf];
+		this->bufs = 1;
+	}
+	this->size = 0;
+	int ch = EOF;
+	while (ch) {
+		ch = getchar();
+		if (ch == '\n' || ch == ' ')
+			ch = 0;
+		else if (ch == EOF) {
+			ch = 0;
+			String::EOFdetected = 1;
+		}
+
+		if (this->size < stringBuf * this->bufs)
+			this->val[this->size++] = ch;
+		else {
+			this->bufs++;
+			this->addMemory(this->bufs * stringBuf);
+			this->val[this->size++] = ch;
+		}
+	}
+}
 String& String::operator=(const String& s) {
 	if (s.bufs != this->bufs) {
 		cleanVal();
@@ -167,6 +193,7 @@ String& String::operator=(const String& s) {
 		this->bufs = s.bufs;
 	}
 	this->size = s.size;
+
 	strcpy(val, s.val);
 	return *this;
 }
@@ -191,6 +218,9 @@ String& String::operator=(String&& s) {
 	this->size = s.size;
 	this->bufs = s.bufs;
 	std::swap(this->val, s.val);
+	s.size = 0;
+	s.bufs = 0;
+	s.val = nullptr;
 	return *this;
 }
 const bool String::operator==(const String& s) const{

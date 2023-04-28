@@ -68,7 +68,4 @@ void Node<T>::setNext(Node<T>* newN) {
 	this->next = newN;
 }
 template <typename T>
-Node<T>::~Node() {
-	if (this != nullptr && next != nullptr)
-		delete next;
-}
+Node<T>::~Node() {}

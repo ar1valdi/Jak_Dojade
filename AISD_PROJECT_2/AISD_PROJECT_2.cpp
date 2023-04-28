@@ -10,6 +10,7 @@
 #include "VisitedSlots.h"
 #include <stdio.h>
 #include "PriorityQueue.h"
+#include "DijkstraTable.h"
 
 char** enterField(int &w, int &h, List<Pair<int,int>>& cities) {
 	std::cin >> w >> h;
@@ -123,7 +124,7 @@ void connectCities(Queue<QueueNode>& toCheck, int w, int h, bool** visitedBoolMa
 
 			if (isInMap(checkX, checkY, w, h) && !visitedBoolMap[checkX][checkY]) {
 				if (field[checkX][checkY] == ROAD_ASCII) {
-					toCheck.add(*(QueueNode::create(checkX, checkY, node.distance + 1)));
+					toCheck.add(QueueNode::create(checkX, checkY, node.distance + 1));
 
 					visitedVector.add(checkX, checkY);
 					visitedBoolMap[checkX][checkY] = 1;
@@ -133,11 +134,6 @@ void connectCities(Queue<QueueNode>& toCheck, int w, int h, bool** visitedBoolMa
 
 			}
 		}
-
-		//char buf;
-		//std::cin >> buf;
-		//printDebug(field, w, h, visitedBoolMap);
-		//std::cout << node.pos.first << " " << node.pos.secound << '\n';
 	}
 }
 void clearVisited(bool** visitedBoolMap, VisitedSlots& visitedVector) {
@@ -146,7 +142,7 @@ void clearVisited(bool** visitedBoolMap, VisitedSlots& visitedVector) {
 	}
 	visitedVector.clear();
 }
-void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, int h) {
+void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, int h, DijkstraTable& dt) {
 
 	Node<Pair<int, int>>* tmp = cities.getFirstNode();
 	String name;
@@ -164,10 +160,12 @@ void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, 
 	for (int i = 0; i < cities.getSize(); i++) {
 		Pair<int, int> cityPos = tmp->getVal();
 
+		// add city to hashmap representing graph
 		name = getCityName(cityPos.first, cityPos.secound, w, h, field);
 		ht.addCity(name);
+		dt.addCity(name);
 
-		toCheck.add(*(QueueNode::create(cityPos.first, cityPos.secound, 0)));
+		toCheck.add(QueueNode::create(cityPos.first, cityPos.secound, 0));
 		
 		visitedVector.add(cityPos.first, cityPos.secound);
 		visitedBoolMap[cityPos.first][cityPos.secound] = 1;
@@ -177,6 +175,10 @@ void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, 
 
 		tmp = tmp->getNext();
 	}
+
+	for (int i = 0; i < w; i++)
+		delete[] visitedBoolMap[i];
+	delete[] visitedBoolMap;
 }
 void loadFlights(HashTable& ht) {
 	int num, dis;
@@ -185,55 +187,48 @@ void loadFlights(HashTable& ht) {
 	
 	for (int i = 0; i < num; i++) {
 		getchar(); // burn '\n' leftover
-		std::cin >> from >> to >> dis;
+		from.getword();
+		to.getword();
+		scanf_s("%d", &dis);
 		std::cout << "F: " << from << " T: " << to << " D: " << dis << '\n';
 		ht.addConnection(from, to, dis);
 	}
 }
+void shortestPath(const String& from, const String& to, HashTable& ht, DijkstraTable& dt) {
+	dt.resetDistances();
+	PriorityQueue pq;
 
+	pq.add(from, 0);
+
+	while (pq.getSize() != 0) {
+		siPair checking = pq.pop();
+
+		for (int i = 0; i < ht.getAllConnections(checking.first).getSize(); i++) {
+
+		}
+	}
+}
 
 int main(){
-	//PriorityQueue pq;
-	//pq.add(Pair<int, int>::create(0, 4), 4);
-	//pq.add(Pair<int, int>::create(0, 3), 3);
-	//pq.add(Pair<int, int>::create(0, 2), 2);
-	//pq.add(Pair<int, int>::create(0, 1), 1);
-	//pq.add(Pair<int, int>::create(0, 6), 6);
-	//pq.add(Pair<int, int>::create(0, 5), 5);
-	//pq.add(Pair<int, int>::create(0, 4), 4);
-	//pq.add(Pair<int, int>::create(0, 3), 3);
-	//pq.add(Pair<int, int>::create(0, 2), 2);
-	//pq.add(Pair<int, int>::create(0, 1), 1);
-	//
-	//pq.add(Pair<int, int>::create(0, 6), 6);
-	//pq.add(Pair<int, int>::create(0, 5), 5);
-	//pq.add(Pair<int, int>::create(0, 4), 4);
-	//pq.add(Pair<int, int>::create(0, 3), 3);
-	//
-	//for (int i = 0; i < 14; i++) {
-	//	Pair<int, int> toRead = pq.pop();
-	//	std::cout << toRead.first << " " << toRead.secound << '\n';	
-	//}
-	//
-	//return 0;
-	HashTable tab(SIZE_FOR_20_CHARS);
+	HashTable tab(HASH_TAB_SIZE);
+	
+	// initialize it once so i wont have to allocate and deallocate memory several times
+	DijkstraTable dt(HASH_TAB_SIZE);
 
 	char** field;
 	int w, h;
 	List<Pair<int, int>> citiesPos;
 	field = enterField(w, h, citiesPos);
 
-	std::cout << '\n';
-	std::cout << '\n';
-	
-	for (int i = 0; i < citiesPos.getSize(); i++) {
-		std::cout << citiesPos[i].getVal().first << " ";
-		std::cout << citiesPos[i].getVal().secound << " ";
-		std::cout << field[citiesPos[i].getVal().first][citiesPos[i].getVal().secound] << "\n";
-	}
-
-	loadGraph(tab, field, citiesPos, w, h);
+	loadGraph(tab, field, citiesPos, w, h, dt);
 	loadFlights(tab);
 
 	tab.print();
+
+	for (int i = 0; i < w; i++)
+		delete[] field[i];
+	delete[] field;
+
+	//std::cout << "KONIEC";
+	return 0;
 }

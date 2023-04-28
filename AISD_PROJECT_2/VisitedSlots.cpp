@@ -16,6 +16,7 @@ void VisitedSlots::resize() {
 	for (int i = 0; i < size; i++) {
 		slots[i] = tmp[i];
 	}
+	delete[] tmp;
 }
 void VisitedSlots::add(int x, int y) {
 	if (size == allocatedSize)

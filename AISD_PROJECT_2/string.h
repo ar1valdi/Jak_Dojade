@@ -9,7 +9,6 @@ private:
 	void cleanVal();
 	void addMemory(int newSize);
 	friend String operator+(const char c, const String& s);
-	friend std::istream& operator>>(std::istream& is, String& s);
 public:
 	static bool getEOFdetection();
 	String();
@@ -19,6 +18,7 @@ public:
 	bool isEmpty();
 	char* getVal() const;
 	void getline();
+	void getword();
 	int getSize() const;
 	int find(char c, int start=0) const;
 	void erase(int start, int n);

@@ -128,10 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AISD_PROJECT_2.cpp" />
+    <ClCompile Include="DijkstraTable.cpp" />
     <ClCompile Include="HashTable.cpp" />
     <ClCompile Include="list.cpp" />
     <ClCompile Include="node.cpp" />
     <ClCompile Include="Pair.cpp" />
+    <ClCompile Include="PriorityQueue.cpp" />
     <ClCompile Include="QueueNode.cpp" />
     <ClCompile Include="string.cpp" />
     <ClCompile Include="VisitedSlots.cpp" />
@@ -139,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="CONTAINERS_CONSTS.h" />
     <ClInclude Include="DEFINES.h" />
+    <ClInclude Include="DijkstraTable.h" />
     <ClInclude Include="HashTable.h" />
     <ClInclude Include="list.h" />
     <ClInclude Include="move.h" />

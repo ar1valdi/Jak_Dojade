@@ -10,6 +10,7 @@ QueueNode::QueueNode(int x, int y, int dis) {
 	pos.secound = y;
 	distance = dis;
 }
-QueueNode* QueueNode::create(int x, int y, int dis) {
-	return new QueueNode(x, y, dis);
+QueueNode QueueNode::create(int x, int y, int dis) {
+	QueueNode q(x, y, dis);
+	return q;
 }
