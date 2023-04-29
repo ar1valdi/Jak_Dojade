@@ -129,9 +129,12 @@ void connectCities(Queue<QueueNode>& toCheck, int w, int h, bool** visitedBoolMa
 					visitedVector.add(checkX, checkY);
 					visitedBoolMap[checkX][checkY] = 1;
 				}
-				else if (field[checkX][checkY] == CITY_ASCII)
+				else if (field[checkX][checkY] == CITY_ASCII) {
 					ht.addConnection(name, getCityName(checkX, checkY, w, h, field), node.distance);
 
+					visitedVector.add(checkX, checkY);
+					visitedBoolMap[checkX][checkY] = 1;
+				}
 			}
 		}
 	}
@@ -183,29 +186,79 @@ void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, 
 void loadFlights(HashTable& ht) {
 	int num, dis;
 	String from, to;
-	std::cin >> num;
+	scanf_s("%d", &num);
 	
 	for (int i = 0; i < num; i++) {
 		getchar(); // burn '\n' leftover
 		from.getword();
 		to.getword();
 		scanf_s("%d", &dis);
-		std::cout << "F: " << from << " T: " << to << " D: " << dis << '\n';
+		//std::cout << "F: " << from << " T: " << to << " D: " << dis << '\n';
 		ht.addConnection(from, to, dis);
 	}
 }
-void shortestPath(const String& from, const String& to, HashTable& ht, DijkstraTable& dt) {
-	dt.resetDistances();
+void getPath(DijkstraTable& dt, const String& to, int& additionalDistance, List<String>& path) {
+	if (dt[to].prev == NO_PREV_CITIES)
+		return;
+
+	additionalDistance++;
+	path.add(dt[to].prev);
+	getPath(dt, dt[to].prev, additionalDistance, path);
+}
+void shortestPath(const String& from, const String& to, HashTable& ht, DijkstraTable& distances) {
+	distances.resetDistances();
 	PriorityQueue pq;
+	siPair curCity;
+	List<siPair>* adj;
+	Node<siPair>* cityToCheck;
+	int roadLen;
 
 	pq.add(from, 0);
 
 	while (pq.getSize() != 0) {
-		siPair checking = pq.pop();
+		curCity = pq.pop();
+		adj = &ht.getAllConnections(curCity.first);
+		cityToCheck = adj->getFirstNode();
 
-		for (int i = 0; i < ht.getAllConnections(checking.first).getSize(); i++) {
+		while (cityToCheck != nullptr) {
 
+			roadLen = cityToCheck->getVal().secound;
+
+			if (distances[cityToCheck->getVal().first].dis > curCity.secound + roadLen) {
+
+				pq.add(cityToCheck->getVal().first, curCity.secound + roadLen);
+				distances.changeCity(cityToCheck->getVal().first, curCity.secound + roadLen, curCity.first);
+
+			}
+
+			cityToCheck = cityToCheck->getNext();
 		}
+	}
+
+	int additionalDIstance = 0;
+	List<String> path;
+	getPath(distances, to, additionalDIstance, path);
+	std::cout << distances[to].dis + additionalDIstance << " ";
+	
+	Node<String>* tmp = path.getFirstNode();
+	while (tmp != nullptr) {
+		std::cout << tmp->getVal().getVal() << " ";
+		tmp = tmp->getNext();
+	}
+	std::cout << '\n';
+}
+void handleCommands(HashTable& ht, DijkstraTable& dt) {
+	int num, mode;
+	String from, to;
+	scanf_s("%d", &num);
+
+	for (int i = 0; i < num; i++) {
+		getchar(); // burn '\n' leftover
+		from.getword();
+		to.getword();
+		scanf_s("%d", &mode);
+		//std::cout << "F: " << from << " T: " << to << " D: " << mode << '\n';
+		shortestPath(from, to, ht, dt);
 	}
 }
 
@@ -222,7 +275,7 @@ int main(){
 
 	loadGraph(tab, field, citiesPos, w, h, dt);
 	loadFlights(tab);
-
+	handleCommands(tab, dt);
 	tab.print();
 
 	for (int i = 0; i < w; i++)

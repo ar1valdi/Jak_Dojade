@@ -187,6 +187,9 @@ void String::getword() {
 	}
 }
 String& String::operator=(const String& s) {
+	if (this == &s)
+		return *this;
+
 	if (s.bufs != this->bufs) {
 		cleanVal();
 		this->val = new char[s.bufs * stringBuf];

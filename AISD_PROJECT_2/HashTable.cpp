@@ -32,7 +32,7 @@ Node<Pair<String, List < siPair >>>* HashTable::getRightCity(const String& key) 
 
 	return tmp;
 }
-const List< siPair >& HashTable::getAllConnections(const String& key){
+List< siPair >& HashTable::getAllConnections(const String& key){
 	Node<Pair<String, List<siPair>>>* tmp = getRightCity(key);
 
 	return tmp->getVal().secound;
@@ -64,6 +64,19 @@ void HashTable::print() {
 			std::cout << "\n";
 		}
 	}
+}
+int HashTable::getAdjLength(const String& from, const String& to) {
+	List<siPair>* connections = &getAllConnections(from);
+
+	Node<siPair>* tmp = connections->getFirstNode();
+
+	while (tmp != nullptr) {
+		if (tmp->getVal().first == to)
+			return tmp->getVal().secound;
+		tmp = tmp->getNext();
+	}
+
+	return -1;
 }
 HashTable::~HashTable() {
 	delete[] arr;

@@ -2,7 +2,7 @@
 #include "DEFINES.h"
 
 DijkstraTable::DijkstraTable(int size) {
-	val = new List<siPair>[size];
+	val = new List<dijkstraData>[size];
 }
 int DijkstraTable::hash(const String& key) {
 	unsigned long long sum = 0;
@@ -15,11 +15,13 @@ int DijkstraTable::hash(const String& key) {
 }
 void DijkstraTable::addCity(const String& name) {
 	int id = hash(name);
-	val[id].add(siPair::create(name, INF));
-	ptrsToVals.add(&val[id].getLastNode()->getVal().secound);
+	val[id].add({name, (int)INF, NO_PREV_CITIES});
+	ptrsToVals.add(&val[id].getLastNode()->getVal().dis);
 }
-void DijkstraTable::changeValue(const String& key, int dis) {
-	getRightCity(key)->getVal().secound = dis;
+void DijkstraTable::changeCity(const String& key, int dis, const String& prev) {
+	dijkstraData* inner = &getRightCity(key)->getVal();
+	inner->dis = dis;
+	inner->prev = prev;
 }
 void DijkstraTable::resetDistances() {
 	Node<int*>* tmp = ptrsToVals.getFirstNode();
@@ -28,12 +30,12 @@ void DijkstraTable::resetDistances() {
 		tmp = tmp->getNext();
 	}
 }
-Node<siPair>* DijkstraTable::getRightCity(const String& key) {
+Node<dijkstraData>* DijkstraTable::getRightCity(const String& key) {
 	int id = hash(key);
 
-	Node<siPair> *tmp = val[id].getFirstNode();
+	Node<dijkstraData> *tmp = val[id].getFirstNode();
 
-	while (tmp != nullptr && tmp->getVal().first != key) {
+	while (tmp != nullptr && tmp->getVal().cityName != key) {
 		tmp = tmp->getNext();
 	}
 
@@ -44,11 +46,15 @@ void DijkstraTable::print() {
 		auto* ptr = val[i].getFirstNode();
 
 		while (ptr != nullptr) {
-			std::cout << "(" << i << ")" << ptr->getVal().first.getVal() << ": " << ptr->getVal().secound;
+			std::cout << "(" << i << ")" << ptr->getVal().cityName.getVal() << ": " << ptr->getVal().dis;
+			std::cout << ", " << ptr->getVal().prev.getVal();
 			ptr = ptr->getNext();
 			std::cout << "\n";
 		}
 	}
+}
+dijkstraData DijkstraTable::operator[](const String& s) {
+	return getRightCity(s)->getVal();
 }
 DijkstraTable::~DijkstraTable() {
 	delete[] val;

@@ -23,7 +23,8 @@ public:
 	void addList(const String& key, const List< siPair >& val);
 	void addCity(const String& key);
 	void addConnection(const String& key, const String& city, int distance);
-	const List< siPair >& getAllConnections(const String& key);
+	int getAdjLength(const String& from, const String& to);
+	List< siPair >& getAllConnections(const String& key);
 
 	//DEBUG PURPOSES, VERY SLOW BUT PRECISE
 	void print();
