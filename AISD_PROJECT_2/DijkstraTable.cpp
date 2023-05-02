@@ -6,28 +6,43 @@ DijkstraTable::DijkstraTable(int size) {
 }
 int DijkstraTable::hash(const String& key) {
 	unsigned long long sum = 0;
+	char* ch = key.getVal();
 
-	for (int i = 0; i < key.getSize() - 1; i++) {	//-1 cuz of '\0', would bug with -47
-		sum += ((int)key.getVal()[i] - 47) * pow(FIRST_NUMBER_FOR_HASHING, i);	//first valid character is 48, so reducing numbers reduces needed table space
+	while (*ch) {
+		sum = (sum << BIT_SHIFT_HASH) + *(ch++);
 	}
+
+	//for (int i = 0; i < key.getSize() - 1; i++) {	//-1 cuz of '\0', would bug with -47
+	//	sum += ((int)key.getVal()[i] - 47) * (pow(FIRST_NUMBER_FOR_HASHING, i));	//first valid character is 48, so reducing numbers reduces needed table space
+	//}
 
 	return sum % HASH_TAB_SIZE;
 }
 void DijkstraTable::addCity(const String& name) {
 	int id = hash(name);
-	val[id].add({name, (int)INF, NO_PREV_CITIES});
+	dijkstraData dD;
+	dD.cityName = name;
+	dD.dis = (int)INF;
+	dD.prev = NO_PREV_CITIES;
+
+	val[id].add(dD);
 	ptrsToVals.add(&val[id].getLastNode()->getVal().dis);
+	ptrsToVisits.add(&val[id].getLastNode()->getVal().visited);
 }
 void DijkstraTable::changeCity(const String& key, int dis, const String& prev) {
 	dijkstraData* inner = &getRightCity(key)->getVal();
 	inner->dis = dis;
 	inner->prev = prev;
+	inner->visited = false;
 }
 void DijkstraTable::resetDistances() {
 	Node<int*>* tmp = ptrsToVals.getFirstNode();
+	Node<bool*>* tmpVis = ptrsToVisits.getFirstNode();
 	while (tmp != nullptr) {
 		*tmp->getVal() = INF;
+		*tmpVis->getVal() = false;
 		tmp = tmp->getNext();
+		tmpVis = tmpVis->getNext();
 	}
 }
 Node<dijkstraData>* DijkstraTable::getRightCity(const String& key) {
@@ -53,7 +68,7 @@ void DijkstraTable::print() {
 		}
 	}
 }
-dijkstraData DijkstraTable::operator[](const String& s) {
+dijkstraData& DijkstraTable::operator[](const String& s) {
 	return getRightCity(s)->getVal();
 }
 DijkstraTable::~DijkstraTable() {

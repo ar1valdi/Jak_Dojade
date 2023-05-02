@@ -2,8 +2,13 @@
 #include "List.h"
 #include "PQNode.h"
 
+struct PQdata {
+    String* cityName;
+    int dis;
+    String* prev;
+};
+
 class PriorityQueue {
-    Pair<String, int>* val;
     int size, allocatedSize;
     int left(int id);
     int right(int id);
@@ -13,10 +18,12 @@ class PriorityQueue {
     void resize();
 
 public:
+    //ZMIENIC NA PRIVATE
+    PQdata* val;
     PriorityQueue();
     void printTree();
-    void add(const String& name, int prio);
-    Pair<String, int> pop();
+    void add(String* name, int prio, String* prev);
+    PQdata pop();
     int getSize() const;
     ~PriorityQueue();
 };

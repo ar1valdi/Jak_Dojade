@@ -9,7 +9,7 @@ int PriorityQueue::min(int a, int b) {
 }
 
 PriorityQueue::PriorityQueue() {
-    val = new Pair<String,int>[DEF_VEC_SIZE];
+    val = new PQdata[DEF_VEC_SIZE];
     size = 0;
     allocatedSize = DEF_VEC_SIZE;
 }
@@ -19,11 +19,11 @@ PriorityQueue::~PriorityQueue() {
 }
 
 void PriorityQueue::resize() {
-    Pair<String, int>* tmp = val;
+    PQdata* tmp = val;
 
     allocatedSize *= 2;
 
-    val = new Pair<String, int>[allocatedSize];
+    val = new PQdata[allocatedSize];
 
     for (int i = 0; i < size; i++) {
         val[i] = tmp[i];
@@ -31,17 +31,20 @@ void PriorityQueue::resize() {
     delete[] tmp;
 }
 
-void PriorityQueue::add(const String& name, int prio) {
+void PriorityQueue::add(String* name, int prio, String* prev) {
     if (size == allocatedSize)
         resize();
 
-    val[size++] = Pair<String, int>::create(name, prio);
+    val[size].cityName = name;
+    val[size].dis = prio;
+    val[size++].prev = prev;
+
     heapify(size-1, true);
 }
 
-Pair<String, int> PriorityQueue::pop() {
-    siPair toRet = Move(val[0]);
-    val[0] = val[size - 1];
+PQdata PriorityQueue::pop() {
+    PQdata toRet = Move(val[0]);
+    val[0] = Move(val[size - 1]);
     size--;
     heapify(0, false);
     return toRet;
@@ -77,7 +80,7 @@ void PriorityQueue::printTree()
             nextLvl += 1;
             for (j = 0; j < (1 << (maxLvl - nextLvl)) - 1; j++) printf("  ");
         }
-        printf(" %2d ", val[i-1].secound);
+        printf(" %2d ", val[i-1].dis);
         for (j = 0; j < (1 << (maxLvl - nextLvl)) - 1; j++) printf("    ");
     }
 }
@@ -93,17 +96,17 @@ void PriorityQueue::heapify(int i, bool fromDown) {
     int minID, minimal;
 
     if (R >= size)
-        minimal = val[L].secound;
+        minimal = val[L].dis;
     else
-        minimal = min(val[L].secound, val[R].secound);
+        minimal = min(val[L].dis, val[R].dis);
 
-    if (minimal == val[L].secound)
+    if (minimal == val[L].dis)
         minID = L;
     else
         minID = R;
 
-    if (minimal < val[id].secound) {
-        Pair<String, int> helper = val[id];
+    if (minimal < val[id].dis) {
+        PQdata helper = val[id];
         val[id] = val[minID];
         val[minID] = helper;
 

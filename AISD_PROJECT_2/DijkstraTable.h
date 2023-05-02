@@ -7,12 +7,14 @@ struct dijkstraData {
 	String cityName;
 	int dis;
 	String prev;
+	bool visited = false;
 };
 
 class DijkstraTable
 {
 	List<dijkstraData>* val;
 	List<int*> ptrsToVals;
+	List<bool*> ptrsToVisits;
 	
 	int hash(const String& key);
 	Node<dijkstraData>* getRightCity(const String& key);
@@ -21,7 +23,7 @@ public:
 	void addCity(const String& name);
 	void changeCity(const String& key, int dis, const String& prev);
 	void resetDistances();
-	dijkstraData operator[](const String& s);
+	dijkstraData& operator[](const String& s);
 
 	//DEBUG PURPOSES, VERY SLOW BUT PRECISE
 	void print();

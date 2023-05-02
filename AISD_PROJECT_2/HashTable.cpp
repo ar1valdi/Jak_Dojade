@@ -7,10 +7,15 @@ HashTable::HashTable(int size) {
 }
 int HashTable::hash(const String& key) {
 	unsigned long long sum = 0;
+	char* ch = key.getVal();
 
-	for (int i = 0; i < key.getSize() - 1; i++) {	//-1 cuz of '\0', would bug with -47
-		sum += ((int)key.getVal()[i] - 47) * pow(FIRST_NUMBER_FOR_HASHING,i);	//first valid character is 48, so reducing numbers reduces needed table space
+	while (*ch) {
+		sum = (sum << BIT_SHIFT_HASH) + *(ch++);
 	}
+
+	//for (int i = 0; i < key.getSize() - 1; i++) {	//-1 cuz of '\0', would bug with -47
+	//	sum += ((int)key.getVal()[i] - 47) * (pow(FIRST_NUMBER_FOR_HASHING, i));	//first valid character is 48, so reducing numbers reduces needed table space
+	//}
 
 	return sum % HASH_TAB_SIZE;
 }

@@ -21,6 +21,7 @@ public:
 	bool isEmpty() const;
 	void clear();
 	int getSize() const;
+	void insertFirst(const T& v);
 	Node<T>* getFirstNode() const;
 	Node<T>* getLastNode();
 	static List<T> emptyList();
@@ -32,6 +33,14 @@ public:
 	List<T>& operator=(List<T>&& l);
 };
 
+template<typename T>
+void List<T>::insertFirst(const T& v) {
+	Node<T>* newNode = new Node<T>;
+	newNode->setVal(v);
+	newNode->setNext(FirstNode);
+	FirstNode = newNode;
+	size++;
+}
 template<typename T>
 List<T> List<T>::emptyList() {
 	List<T> empty;

@@ -10,6 +10,7 @@ private:
 	void addMemory(int newSize);
 	friend String operator+(const char c, const String& s);
 public:
+	static String emptyDijkstraString();
 	static bool getEOFdetection();
 	String();
 	String(const String& other);

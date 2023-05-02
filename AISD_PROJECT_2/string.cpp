@@ -7,6 +7,11 @@
 #include <iostream>
 
 bool String::EOFdetected = 0;
+String String::emptyDijkstraString() {
+	String n;
+	n += '-';
+	return n;
+}
 String::String() {
 	val = nullptr;
 	size = 0;
@@ -49,7 +54,7 @@ void String::getline() {
 	size = 0;
 	int ch = EOF;
 	while (ch) {
-		ch = getchar();
+		ch = _getchar_nolock();
 		if (ch == '\n')
 			ch = 0;
 		else if (ch == EOF) {
@@ -169,7 +174,7 @@ void String::getword() {
 	this->size = 0;
 	int ch = EOF;
 	while (ch) {
-		ch = getchar();
+		ch = _getchar_nolock();
 		if (ch == '\n' || ch == ' ')
 			ch = 0;
 		else if (ch == EOF) {
