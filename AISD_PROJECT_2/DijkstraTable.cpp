@@ -33,7 +33,7 @@ void DijkstraTable::changeCity(const String& key, int dis, const String& prev) {
 	inner->prev = ht->getCityStringPtr(prev);
 	inner->visited = false;
 }
-void DijkstraTable::firstCity(const String& key) {
+void DijkstraTable::setFirstCity(const String& key) {
 	dijkstraData* inner = &getRightCity(key)->getVal();
 	inner->dis = 0;
 	inner->prev = &NO_PREV;

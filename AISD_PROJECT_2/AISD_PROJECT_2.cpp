@@ -222,7 +222,7 @@ void shortestPath(String& from, const String& to, HashTable& ht, DijkstraTable& 
 	Node<psiPair>* cityToCheck;
 	int roadLen, disToCurr;
 
-	distances.firstCity(from);
+	distances.setFirstCity(from);
 
 	adj = &ht.getAllConnections(from);
 	cityToCheck = adj->getFirstNode();
@@ -246,20 +246,16 @@ void shortestPath(String& from, const String& to, HashTable& ht, DijkstraTable& 
 		else
 			continue;
 
-		if (*curCity.cityName == to) {
-			break;
-		}
+		if (*curCity.cityName == to) break;
 
 		while (cityToCheck != nullptr) {
 
 			roadLen = cityToCheck->getVal().secound;
 
 			nextCity = &distances[*cityToCheck->getVal().first];
-			if (nextCity->dis > disToCurr + roadLen && !nextCity->visited) {
 
+			if (nextCity->dis > disToCurr + roadLen && !nextCity->visited)
 				pq.add(cityToCheck->getVal().first, disToCurr + roadLen, curCity.cityName);
-
-			}
 
 			cityToCheck = cityToCheck->getNext();
 		}

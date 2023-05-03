@@ -9,6 +9,7 @@ struct PQdata {
 };
 
 class PriorityQueue {
+    PQdata* val;
     int size, allocatedSize;
     int left(int id);
     int right(int id);
@@ -18,8 +19,6 @@ class PriorityQueue {
     void resize();
 
 public:
-    //ZMIENIC NA PRIVATE
-    PQdata* val;
     PriorityQueue();
     void printTree();
     void add(String* name, int prio, String* prev);

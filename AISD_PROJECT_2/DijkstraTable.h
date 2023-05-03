@@ -24,7 +24,7 @@ public:
 	DijkstraTable(int size, HashTable* ht);
 	void addCity(const String& name);
 	void changeCity(const String& key, int dis, const String& prev);
-	void firstCity(const String& key);
+	void setFirstCity(const String& key);
 	void resetDistances();
 	dijkstraData& operator[](const String& s);
 
