@@ -19,7 +19,9 @@ Pair<F,S>::Pair(F f, S s) {
 }
 
 template <typename F, typename S>
-Pair<F, S>::Pair() {}	// stay undefined
+Pair<F, S>::Pair() {
+	
+}
 
 template <typename F, typename S>
 Pair<F, S> Pair<F, S>::create(const F& f,const S& s) {
@@ -30,3 +32,4 @@ Pair<F, S> Pair<F, S>::create(const F& f,const S& s) {
 }
 
 typedef Pair<String, int> siPair;
+typedef Pair<String*, int> psiPair;

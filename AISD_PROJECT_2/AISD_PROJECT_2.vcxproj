@@ -130,7 +130,6 @@
     <ClCompile Include="AISD_PROJECT_2.cpp" />
     <ClCompile Include="DijkstraTable.cpp" />
     <ClCompile Include="HashTable.cpp" />
-    <ClCompile Include="Pair.cpp" />
     <ClCompile Include="PriorityQueue.cpp" />
     <ClCompile Include="QueueNode.cpp" />
     <ClCompile Include="string.cpp" />

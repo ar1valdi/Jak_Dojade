@@ -3,7 +3,7 @@
 #include "DEFINES.h"
 
 HashTable::HashTable(int size) {
-	arr = new List<Pair<String, List < siPair >>>[size];
+	arr = new List<Pair<String, List < psiPair >>>[size];
 }
 int HashTable::hash(const String& key) {
 	unsigned long long sum = 0;
@@ -19,17 +19,20 @@ int HashTable::hash(const String& key) {
 
 	return sum % HASH_TAB_SIZE;
 }
-void HashTable::addToId(int id, const String& key, const List< siPair >& val) {
-	arr[id].add(Pair<String, List< siPair >>::create( key, val ));
+void HashTable::addToId(int id, const String& key, const List< psiPair >& val) {
+	arr[id].add(Pair<String, List< psiPair >>::create( key, val ));
 }
-void HashTable::addList(const String& key, const List< siPair >& val) {
+void HashTable::addList(const String& key, const List< psiPair >& val) {
 	int id = hash(key);
 	addToId(id, key, val);
 }
-Node<Pair<String, List < siPair >>>* HashTable::getRightCity(const String& key) {
+String* HashTable::getCityStringPtr(const String& key) {
+	return &(getRightCity(key)->getVal().first);
+}
+Node<Pair<String, List < psiPair >>>* HashTable::getRightCity(const String& key) {
 	int id = hash(key);
 
-	Node<Pair<String, List < siPair >>>* tmp = arr[id].getFirstNode();
+	Node<Pair<String, List < psiPair >>>* tmp = arr[id].getFirstNode();
 
 	while (tmp != nullptr && tmp->getVal().first != key) {
 		tmp = tmp->getNext();
@@ -37,22 +40,22 @@ Node<Pair<String, List < siPair >>>* HashTable::getRightCity(const String& key) 
 
 	return tmp;
 }
-List< siPair >& HashTable::getAllConnections(const String& key){
-	Node<Pair<String, List<siPair>>>* tmp = getRightCity(key);
+List< psiPair >& HashTable::getAllConnections(const String& key){
+	Node<Pair<String, List<psiPair>>>* tmp = getRightCity(key);
 
 	return tmp->getVal().secound;
 }
-void HashTable::addConnection(const String& key, const String& city, int distance) {
-	Node<Pair<String, List<siPair>>>* tmp = getRightCity(key);
+void HashTable::addConnection(const String& key, String* city, int distance) {
+	Node<Pair<String, List<psiPair>>>* tmp = getRightCity(key);
 
 	if (tmp == nullptr)
 		return;	
 
-	tmp->getVal().secound.add(siPair::create(city, distance));
+	tmp->getVal().secound.add(psiPair::create(city, distance));
 }
 void HashTable::addCity(const String& key) {
 	int id = hash(key);
-	arr[id].add(Pair<String, List<siPair>>::create(key, List<siPair>::emptyList()));
+	arr[id].add(Pair<String, List<psiPair>>::create(key, List<psiPair>::emptyList()));
 }
 void HashTable::print() {
 	for (int i = 0; i < HASH_TAB_SIZE; i++) {
@@ -62,7 +65,7 @@ void HashTable::print() {
 			std::cout << "(" << i << ")" << ptr->getVal().first.getVal() << ": ";
 			auto* ptrInside = ptr->getVal().secound.getFirstNode();
 			while (ptrInside != nullptr) {
-				std::cout << ptrInside->getVal().first.getVal() << " - " << ptrInside->getVal().secound << ", ";
+				std::cout << ptrInside->getVal().first->getVal() << " - " << ptrInside->getVal().secound << ", ";
 				ptrInside = ptrInside->getNext();
 			}
 			ptr = ptr->getNext();
@@ -71,12 +74,12 @@ void HashTable::print() {
 	}
 }
 int HashTable::getAdjLength(const String& from, const String& to) {
-	List<siPair>* connections = &getAllConnections(from);
+	List<psiPair>* connections = &getAllConnections(from);
 
-	Node<siPair>* tmp = connections->getFirstNode();
+	Node<psiPair>* tmp = connections->getFirstNode();
 
 	while (tmp != nullptr) {
-		if (tmp->getVal().first == to)
+		if (*tmp->getVal().first == to)
 			return tmp->getVal().secound;
 		tmp = tmp->getNext();
 	}

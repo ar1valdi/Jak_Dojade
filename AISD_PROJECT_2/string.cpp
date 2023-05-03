@@ -228,7 +228,6 @@ String& String::operator=(String&& s) {
 	std::swap(this->val, s.val);
 	s.size = 0;
 	s.bufs = 0;
-	s.val = nullptr;
 	return *this;
 }
 const bool String::operator==(const String& s) const{

@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include "PriorityQueue.h"
 #include "DijkstraTable.h"
-int licznik;
 
 char** enterField(int &w, int &h, List<Pair<int,int>>& cities) {
 	std::cin >> w >> h;
@@ -131,7 +130,8 @@ void connectCities(Queue<QueueNode>& toCheck, int w, int h, bool** visitedBoolMa
 					visitedBoolMap[checkX][checkY] = 1;
 				}
 				else if (field[checkX][checkY] == CITY_ASCII) {
-					ht.addConnection(name, getCityName(checkX, checkY, w, h, field), node.distance + 1);
+					String* toAdd = ht.getCityStringPtr(getCityName(checkX, checkY, w, h, field));
+					ht.addConnection(name, toAdd, node.distance + 1);
 
 					visitedVector.add(checkX, checkY);
 					visitedBoolMap[checkX][checkY] = 1;
@@ -160,14 +160,22 @@ void loadGraph(HashTable& ht, char** field, List<Pair<int,int>>& cities, int w, 
 		for (int j = 0; j < h; j++)
 			visitedBoolMap[i][j] = 0;
 	}
-
-	for (int i = 0; i < cities.getSize(); i++) {
+	while(tmp != nullptr) {
 		Pair<int, int> cityPos = tmp->getVal();
 
 		// add city to hashmap representing graph
 		name = getCityName(cityPos.first, cityPos.secound, w, h, field);
 		ht.addCity(name);
 		dt.addCity(name);
+
+		tmp = tmp->getNext();
+	}
+
+	tmp = cities.getFirstNode();
+
+	while(tmp != nullptr) {
+		Pair<int, int> cityPos = tmp->getVal();
+		name = getCityName(cityPos.first, cityPos.secound, w, h, field);
 
 		toCheck.add(QueueNode::create(cityPos.first, cityPos.secound, 0));
 		
@@ -194,20 +202,14 @@ void loadFlights(HashTable& ht) {
 		from.getword();
 		to.getword();
 		scanf_s("%d", &dis);
-		//std::cout << "F: " << from << " T: " << to << " D: " << dis << '\n';
-		ht.addConnection(from, to, dis);
-		licznik++;
-		//if (licznik == 2000000) {
-		//	std::cout << "time check";
-		//	return;
-		//}
+		ht.addConnection(from, ht.getCityStringPtr(to), dis);
 	}
 }
 void getPath(DijkstraTable& dt, const String& from, const String& to, List<String>& path) {
 	String prevCity = to;
 
-	while (dt[prevCity].prev != from && dt[prevCity].prev != NO_PREV_CITIES) {
-		prevCity = dt[prevCity].prev;
+	while (*dt[prevCity].prev != from && *dt[prevCity].prev != NO_PREV_CITIES) {
+		prevCity = *dt[prevCity].prev;
 		path.insertFirst(prevCity);
 	}
 }
@@ -216,34 +218,28 @@ void shortestPath(String& from, const String& to, HashTable& ht, DijkstraTable& 
 	PriorityQueue pq;
 	PQdata curCity;
 	dijkstraData* nextCity;
-	List<siPair>* adj;
-	Node<siPair>* cityToCheck;
+	List<psiPair>* adj;
+	Node<psiPair>* cityToCheck;
 	int roadLen, disToCurr;
 
-	//pq.add(from, 0, NO_PREV_CITIES);
-	distances.changeCity(from, 0, NO_PREV_CITIES);
+	distances.firstCity(from);
 
 	adj = &ht.getAllConnections(from);
 	cityToCheck = adj->getFirstNode();
 
 	// add surroundings of from to pq
 	while (cityToCheck != nullptr) {
-		pq.add(&cityToCheck->getVal().first, cityToCheck->getVal().secound, &from);
-		//distances.changeCity(cityToCheck->getVal().first, cityToCheck->getVal().secound, from);
+		pq.add(cityToCheck->getVal().first, cityToCheck->getVal().secound, &from);
 		cityToCheck = cityToCheck->getNext();
 	}
-
-	//distances.print();
 
 	// dijkstra's algorithm
 	while (pq.getSize() != 0) {
 		curCity = pq.pop();
 
-		
 		adj = &ht.getAllConnections(*curCity.cityName);
 		cityToCheck = adj->getFirstNode();
 
-		//disToCurr = ht.getAdjLength(curCity.prev, curCity.cityName) + distances[curCity.cityName].dis;
 		disToCurr = curCity.dis;
 		if (distances[*curCity.cityName].dis > disToCurr)
 			distances.changeCity(*curCity.cityName, disToCurr, *curCity.prev);
@@ -254,16 +250,14 @@ void shortestPath(String& from, const String& to, HashTable& ht, DijkstraTable& 
 			break;
 		}
 
-//		ht.print();
-
 		while (cityToCheck != nullptr) {
 
 			roadLen = cityToCheck->getVal().secound;
 
-			nextCity = &distances[cityToCheck->getVal().first];
+			nextCity = &distances[*cityToCheck->getVal().first];
 			if (nextCity->dis > disToCurr + roadLen && !nextCity->visited) {
 
-				pq.add(&cityToCheck->getVal().first, disToCurr + roadLen, curCity.cityName);
+				pq.add(cityToCheck->getVal().first, disToCurr + roadLen, curCity.cityName);
 
 			}
 
@@ -306,11 +300,11 @@ int main(){
 	HashTable tab(HASH_TAB_SIZE);
 	
 	// initialize it once so i wont have to allocate and deallocate memory several times
-	DijkstraTable dt(HASH_TAB_SIZE);
+	DijkstraTable dt(HASH_TAB_SIZE, &tab);
 
 	char** field;
 	int w, h;
-	List<Pair<int, int>>* citiesPos = new List<Pair<int,int>>;
+	List<Pair<int, int>>* citiesPos = new List<Pair<int, int>>;
 	field = enterField(w, h, *citiesPos);
 
 	loadGraph(tab, field, *citiesPos, w, h, dt);

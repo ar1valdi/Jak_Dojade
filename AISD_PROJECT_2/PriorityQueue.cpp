@@ -1,6 +1,5 @@
 #include "PriorityQueue.h"
 #include "CONTAINERS_CONSTS.h"
-#include <math.h>
 
 int PriorityQueue::min(int a, int b) {
     if (a < b)

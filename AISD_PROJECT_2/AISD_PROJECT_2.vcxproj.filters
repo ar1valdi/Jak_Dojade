@@ -24,9 +24,6 @@
     <ClCompile Include="string.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Pair.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="VisitedSlots.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>

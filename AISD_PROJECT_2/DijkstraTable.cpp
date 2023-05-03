@@ -1,8 +1,10 @@
 #include "DijkstraTable.h"
 #include "DEFINES.h"
 
-DijkstraTable::DijkstraTable(int size) {
+DijkstraTable::DijkstraTable(int size, HashTable* ht) {
 	val = new List<dijkstraData>[size];
+	this->ht = ht;
+	NO_PREV = NO_PREV_CITIES;
 }
 int DijkstraTable::hash(const String& key) {
 	unsigned long long sum = 0;
@@ -12,18 +14,14 @@ int DijkstraTable::hash(const String& key) {
 		sum = (sum << BIT_SHIFT_HASH) + *(ch++);
 	}
 
-	//for (int i = 0; i < key.getSize() - 1; i++) {	//-1 cuz of '\0', would bug with -47
-	//	sum += ((int)key.getVal()[i] - 47) * (pow(FIRST_NUMBER_FOR_HASHING, i));	//first valid character is 48, so reducing numbers reduces needed table space
-	//}
-
 	return sum % HASH_TAB_SIZE;
 }
 void DijkstraTable::addCity(const String& name) {
 	int id = hash(name);
 	dijkstraData dD;
-	dD.cityName = name;
+	dD.cityName = ht->getCityStringPtr(name);
 	dD.dis = (int)INF;
-	dD.prev = NO_PREV_CITIES;
+	dD.prev = &NO_PREV;
 
 	val[id].add(dD);
 	ptrsToVals.add(&val[id].getLastNode()->getVal().dis);
@@ -32,7 +30,13 @@ void DijkstraTable::addCity(const String& name) {
 void DijkstraTable::changeCity(const String& key, int dis, const String& prev) {
 	dijkstraData* inner = &getRightCity(key)->getVal();
 	inner->dis = dis;
-	inner->prev = prev;
+	inner->prev = ht->getCityStringPtr(prev);
+	inner->visited = false;
+}
+void DijkstraTable::firstCity(const String& key) {
+	dijkstraData* inner = &getRightCity(key)->getVal();
+	inner->dis = 0;
+	inner->prev = &NO_PREV;
 	inner->visited = false;
 }
 void DijkstraTable::resetDistances() {
@@ -50,7 +54,7 @@ Node<dijkstraData>* DijkstraTable::getRightCity(const String& key) {
 
 	Node<dijkstraData> *tmp = val[id].getFirstNode();
 
-	while (tmp != nullptr && tmp->getVal().cityName != key) {
+	while (tmp != nullptr && *tmp->getVal().cityName != key) {
 		tmp = tmp->getNext();
 	}
 
@@ -61,8 +65,8 @@ void DijkstraTable::print() {
 		auto* ptr = val[i].getFirstNode();
 
 		while (ptr != nullptr) {
-			std::cout << "(" << i << ")" << ptr->getVal().cityName.getVal() << ": " << ptr->getVal().dis;
-			std::cout << ", " << ptr->getVal().prev.getVal();
+			std::cout << "(" << i << ")" << ptr->getVal().cityName->getVal() << ": " << ptr->getVal().dis;
+			std::cout << ", " << ptr->getVal().prev->getVal();
 			ptr = ptr->getNext();
 			std::cout << "\n";
 		}
